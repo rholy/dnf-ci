@@ -22,9 +22,9 @@ MOCK_DIR=/tmp/libcomps-git2src-make-spec-in-mock
 mock --quiet --root="$1" --chroot "rm --recursive --force '$MOCK_DIR'"
 mock --quiet --root="$1" --copyin . "$MOCK_DIR"
 mock --quiet --root="$1" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --root="$1" --install cmake git
+mock --quiet --root="$1" --install python git
 
-mock --quiet --root="$1" --unpriv --shell "cd '$MOCK_DIR' && ./build_prep.sh"; EXIT=$?
+mock --quiet --root="$1" --unpriv --shell "cd '$MOCK_DIR' && ./build_prep.py"; EXIT=$?
 
 TMP_DIR=/tmp
 TMP_HOME="$TMP_DIR"/libcomps-git2src-make-spec-in-mock

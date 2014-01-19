@@ -19,6 +19,13 @@
 # Red Hat, Inc.
 
 # Convert the GIT repository to a source archive and make the SPEC file.
+python --version >>/dev/null 2>&1; PYTHON_EXIT=$?
+case "$PYTHON_EXIT" in
+	# Python is installed.
+	0) 		IS_PYTHON=0;;
+	# Python is not installed.
+	127)	IS_PYTHON=1;;
+esac
 git --version >>/dev/null 2>&1; GIT_EXIT=$?
 case "$GIT_EXIT" in
 	# GIT is installed.
@@ -26,29 +33,13 @@ case "$GIT_EXIT" in
 	# GIT is not installed.
 	127)	IS_GIT=1;;
 esac
-cmake --version >>/dev/null 2>&1; CMAKE_EXIT=$?
-case "$CMAKE_EXIT" in
-	# cmake is installed.
-	0) 		IS_CMAKE=0;;
-	# cmake is not installed.
-	127)	IS_CMAKE=1;;
-esac
-if [ $(($IS_GIT + $IS_CMAKE)) -eq 0 ]; then
-	./build_prep.sh;
+if [ $(($IS_PYTHON + $IS_GIT)) -eq 0 ]; then
+	./build_prep.py;
 else
 	./libcomps-git2src-make-spec-in-mock.sh "$1"
 fi
 SRC_DIR=.
 SPEC_PATH=libcomps.spec
-
-# Fix "%changelog not in descending chronological order".
-python --version >>/dev/null 2>&1; PYTHON_EXIT=$?
-case "$PYTHON_EXIT" in
-	# Python is installed.
-	0) 		./libcomps_fix_changelog.py "$SPEC_PATH" "$SPEC_PATH";;
-	# Python is not installed.
-	127)	./libcomps-fix-changelog-in-mock.sh "$SPEC_PATH" "$SPEC_PATH" "$1";;
-esac
 
 # Build the SRPM.
 SRPM_DIR=.
@@ -58,4 +49,4 @@ mock --quiet --root="$1" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR"
 mv "/var/lib/mock/$1/result"/$SRPM_GLOB "$SRPM_DIR"
 
 # Build the RPMs.
-./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" python-sphinx python3-sphinx ${*:2} # python-sphinx python3-sphinx (Fix of python2: can't open file 'SPHINX_EXECUTABLE-NOTFOUND': [Errno 2] No such file or directory)
+./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" ${*:2}
