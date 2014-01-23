@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Convert the dnf GIT repository into a source archive.
-# Usage: ./dnf-git2src-in-mock.sh MOCK_CFG
+# Usage: ./dnf-git2src-in-mock.sh CFG_DIR MOCK_CFG
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -19,15 +19,15 @@
 # Red Hat, Inc.
 
 MOCK_DIR=/tmp/dnf-git2src-in-mock
-mock --quiet --root="$1" --chroot "rm --recursive --force '$MOCK_DIR'"
-mock --quiet --root="$1" --copyin . "$MOCK_DIR"
-mock --quiet --root="$1" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --root="$1" --install git
+mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
+mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --install git
 
-GITREV=$(mock --quiet --root="$1" --unpriv --shell "cd '$MOCK_DIR'; package/archive"); EXIT=$?
+GITREV=$(mock --quiet --configdir="$1" --root="$2" --unpriv --shell "cd '$MOCK_DIR'; package/archive"); EXIT=$?
 
 SRC_DIR="$HOME/rpmbuild/SOURCES"
-mock --quiet --root="$1" --copyout "/builddir/rpmbuild/SOURCES/dnf-${GITREV}.tar.xz" .
+mock --quiet --configdir="$1" --root="$2" --copyout "/builddir/rpmbuild/SOURCES/dnf-${GITREV}.tar.xz" .
 mkdir --parents "$SRC_DIR"
 mv dnf-${GITREV}.tar.xz "$SRC_DIR"
 echo "$GITREV"

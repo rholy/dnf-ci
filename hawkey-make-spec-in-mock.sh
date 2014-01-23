@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Make the hawkey SPEC file.
-# Usage: ./hawkey-make-spec-in-mock.sh MOCK_CFG
+# Usage: ./hawkey-make-spec-in-mock.sh CFG_DIR MOCK_CFG
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -19,12 +19,12 @@
 # Red Hat, Inc.
 
 MOCK_DIR=/tmp/hawkey-make-spec-in-mock
-mock --quiet --root="$1" --chroot "rm --recursive --force '$MOCK_DIR'"
-mock --quiet --root="$1" --copyin . "$MOCK_DIR"
-mock --quiet --root="$1" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --root="$1" --install cmake
+mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
+mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --install cmake
 
-mock --quiet --root="$1" --unpriv --shell "cd '$MOCK_DIR'; cmake -P hawkey-make-spec.cmake"; EXIT=$?
+mock --quiet --configdir="$1" --root="$2" --unpriv --shell "cd '$MOCK_DIR'; cmake -P hawkey-make-spec.cmake"; EXIT=$?
 
-mock --quiet --root="$1" --copyout "$MOCK_DIR/package/hawkey.spec" package
+mock --quiet --configdir="$1" --root="$2" --copyout "$MOCK_DIR/package/hawkey.spec" package
 exit $EXIT

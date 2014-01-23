@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build RPMs from a SRPM using given dependencies.
-# Usage: ./srpm2rpm-with-deps.sh SRPM_PATH MOCK_CFG [DEP_PKG...]
+# Usage: ./srpm2rpm-with-deps.sh SRPM_PATH CFG_DIR MOCK_CFG [DEP_PKG...]
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -18,12 +18,12 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-mock --quiet --root="$2" --init
+mock --quiet --configdir="$2" --root="$3" --init
 
 # Install dependencies.
-if [ $# -gt 2 ]; then
-	mock --quiet --root="$2" --install ${*:3};
+if [ $# -gt 3 ]; then
+	mock --quiet --configdir="$2" --root="$3" --install ${*:4};
 fi
 
 # Build RPM.
-mock --quiet --root="$2" --no-clean "$1"
+mock --quiet --configdir="$2" --root="$3" --no-clean "$1"

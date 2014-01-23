@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Make the dnf SPEC file.
-# Usage: ./dnf-make-spec-in-mock.sh MOCK_CFG
+# Usage: ./dnf-make-spec-in-mock.sh CFG_DIR MOCK_CFG
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -19,12 +19,12 @@
 # Red Hat, Inc.
 
 MOCK_DIR=/tmp/dnf-make-spec-in-mock
-mock --quiet --root="$1" --chroot "rm --recursive --force '$MOCK_DIR'"
-mock --quiet --root="$1" --copyin . "$MOCK_DIR"
-mock --quiet --root="$1" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --root="$1" --install cmake
+mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
+mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --install cmake
 
-mock --quiet --root="$1" --unpriv --shell "cd '$MOCK_DIR'; cmake -P dnf-make-spec.cmake"; EXIT=$?
+mock --quiet --configdir="$1" --root="$2" --unpriv --shell "cd '$MOCK_DIR'; cmake -P dnf-make-spec.cmake"; EXIT=$?
 
-mock --quiet --root="$1" --copyout "$MOCK_DIR/package/dnf.spec" package
+mock --quiet --configdir="$1" --root="$2" --copyout "$MOCK_DIR/package/dnf.spec" package
 exit $EXIT

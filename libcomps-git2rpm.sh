@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the libcomps RPMs from the GIT repository.
-# Usage: ./libcomps-git2rpm.sh MOCK_CFG [DEP_PKG...]
+# Usage: ./libcomps-git2rpm.sh CFG_DIR MOCK_CFG [DEP_PKG...]
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -36,7 +36,7 @@ esac
 if [ $(($IS_PYTHON + $IS_GIT)) -eq 0 ]; then
 	./build_prep.py;
 else
-	./libcomps-git2src-make-spec-in-mock.sh "$1"
+	./libcomps-git2src-make-spec-in-mock.sh "$1" "$2"
 fi
 SRC_DIR=.
 SPEC_PATH=libcomps.spec
@@ -45,8 +45,8 @@ SPEC_PATH=libcomps.spec
 SRPM_DIR=.
 SRPM_GLOB="$SRPM_DIR"/libcomps-*.src.rpm
 rm --force "$SRPM_DIR"/$SRPM_GLOB
-mock --quiet --root="$1" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR"
-mv "/var/lib/mock/$1/result"/$SRPM_GLOB "$SRPM_DIR"
+mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR"
+mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
 
 # Build the RPMs.
-./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" ${*:2}
+./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:3}

@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the librepo RPMs from the GIT repository.
-# Usage: ./librepo-git2rpm-in-mock.sh MOCK_CFG [DEP_PKG...]
+# Usage: ./librepo-git2rpm-in-mock.sh CFG_DIR MOCK_CFG [DEP_PKG...]
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -19,19 +19,19 @@
 # Red Hat, Inc.
 
 MOCK_DIR=/tmp/librepo-git2rpm
-mock --quiet --root="$1" --chroot "rm --recursive --force '$MOCK_DIR'"
-mock --quiet --root="$1" --copyin . "$MOCK_DIR"
-mock --quiet --root="$1" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --root="$1" --install wget yum git check-devel cmake expat-devel gcc glib2-devel gpgme-devel libattr-devel libcurl-devel openssl-devel python-devel python3-devel pygpgme python3-pygpgme python-flask python3-flask python-nose python3-nose doxygen python-sphinx python3-sphinx
-mock --quiet --root="$1" --chroot "ln --symbolic --force /builddir/build \"\$HOME/rpmbuild\""
+mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
+mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --install wget yum git check-devel cmake expat-devel gcc glib2-devel gpgme-devel libattr-devel libcurl-devel openssl-devel python-devel python3-devel pygpgme python3-pygpgme python-flask python3-flask python-nose python3-nose doxygen python-sphinx python3-sphinx
+mock --quiet --configdir="$1" --root="$2" --chroot "ln --symbolic --force /builddir/build \"\$HOME/rpmbuild\""
 
 # Install dependencies.
-if [ $# -gt 1 ]; then
-	mock --quiet --root="$1" --install ${*:2};
+if [ $# -gt 2 ]; then
+	mock --quiet --configdir="$1" --root="$2" --install ${*:3};
 fi
 
 # Build RPM.
-mock --quiet --root="$1" --unpriv --shell "cd '$MOCK_DIR' && ./librepo-git2rpm.sh"; EXIT=$?
+mock --quiet --configdir="$1" --root="$2" --unpriv --shell "cd '$MOCK_DIR' && ./librepo-git2rpm.sh"; EXIT=$?
 
 TMP_DIR=/tmp/librepo-git2rpm
 TMP_HOME="$TMP_DIR"/home
@@ -40,9 +40,9 @@ RPMS_DIR="$HOME/rpmbuild/RPMS"
 mkdir --parents "$TMP_DIR"
 chmod a+rwx "$TMP_DIR"
 rm --recursive --force "$TMP_HOME" "$TMP_RPMS"
-mock --quiet --root="$1" --copyout "$MOCK_DIR" "$TMP_HOME"
+mock --quiet --configdir="$1" --root="$2" --copyout "$MOCK_DIR" "$TMP_HOME"
 mv "$TMP_HOME"/librepo-*.src.rpm .
-mock --quiet --root="$1" --copyout "/builddir/build/RPMS" "$TMP_RPMS"
+mock --quiet --configdir="$1" --root="$2" --copyout "/builddir/build/RPMS" "$TMP_RPMS"
 mkdir --parents "$RPMS_DIR"
 mv "$TMP_RPMS"/*librepo-*.rpm "$RPMS_DIR"
 exit $EXIT

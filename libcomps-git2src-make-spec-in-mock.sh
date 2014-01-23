@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Convert the libcomps GIT repository into a source archive and make the SPEC file.
-# Usage: ./libcomps-git2src-make-spec-in-mock.sh MOCK_CFG
+# Usage: ./libcomps-git2src-make-spec-in-mock.sh CFG_DIR MOCK_CFG
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -19,19 +19,19 @@
 # Red Hat, Inc.
 
 MOCK_DIR=/tmp/libcomps-git2src-make-spec-in-mock
-mock --quiet --root="$1" --chroot "rm --recursive --force '$MOCK_DIR'"
-mock --quiet --root="$1" --copyin . "$MOCK_DIR"
-mock --quiet --root="$1" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --root="$1" --install python git
+mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
+mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --install python git
 
-mock --quiet --root="$1" --unpriv --shell "cd '$MOCK_DIR' && ./build_prep.py"; EXIT=$?
+mock --quiet --configdir="$1" --root="$2" --unpriv --shell "cd '$MOCK_DIR' && ./build_prep.py"; EXIT=$?
 
 TMP_DIR=/tmp
 TMP_HOME="$TMP_DIR"/libcomps-git2src-make-spec-in-mock
 mkdir --parents "$TMP_DIR"
 chmod a+rwx "$TMP_DIR"
 rm --recursive --force "$TMP_HOME"
-mock --quiet --root="$1" --copyout "$MOCK_DIR" "$TMP_HOME"
+mock --quiet --configdir="$1" --root="$2" --copyout "$MOCK_DIR" "$TMP_HOME"
 mv "$TMP_HOME"/libcomps-*.tar.gz .
 mv "$TMP_HOME/libcomps.spec" .
 exit $EXIT
