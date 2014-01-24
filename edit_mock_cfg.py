@@ -30,6 +30,8 @@ from tempfile import TemporaryFile
 
 CONFIG_OPTS = b'config_opts'
 
+ENABLE_REPO_VALUE = b'1'
+
 
 def parse_args():
     usage = 'Usage: ./%prog [options] SOURCE DESTINATION'
@@ -37,18 +39,24 @@ def parse_args():
     optparser.add_option(
         '-r', '--root', metavar='CHROOT', help='set the name of the CHROOT')
     optparser.add_option(
+        '--enablerepo', action='append', default=[], metavar='ID',
+        help='enable repository with ID')
+    optparser.add_option(
         '-x', '--exclude', action='append', default=[], metavar='PKG',
         help='exclude PKG from all yum repositories')
     options, arguments = optparser.parse_args()
     if len(arguments) != 2:
         optparser.error('incorrect number of arguments')
     root = None if options.root is None else options.root.encode()
+    enablerepo = frozenset(id_.encode() for id_ in options.enablerepo)
     exclude = frozenset(pkg.encode() for pkg in options.exclude)
-    return arguments + [root, exclude]
+    return arguments + [root, enablerepo, exclude]
 
 
-def copy_edited_conf(source, destination, root=None, exclude=frozenset()):
-    write_conf(destination, edit_conf(parse_conf(source), root, exclude))
+def copy_edited_conf(source, destination, root=None, enablerepo=frozenset(),
+                     exclude=frozenset()):
+    conf = edit_conf(parse_conf(source), root, enablerepo, exclude)
+    write_conf(destination, conf)
 
 
 def parse_conf(file):
@@ -73,7 +81,9 @@ def parse_yum_conf(file):
 
         line = next(file)
         while not YumConfSection.end_match(line):
-            if YumExcludeLine.match(line):
+            if YumEnableLine.match(line):
+                entry = YumEnableLine.from_bytes(line)
+            elif YumExcludeLine.match(line):
                 entry = YumExcludeLine.from_bytes(line)
             else:
                 entry = line
@@ -83,12 +93,13 @@ def parse_yum_conf(file):
         yield section
 
 
-def edit_conf(entries, root=None, exclude=frozenset()):
+def edit_conf(entries, root=None, enablerepo=frozenset(), exclude=frozenset()):
     for entry in entries:
         if isinstance(entry, YumConfigOpt):
             # Edit excludes.
             entry_ = YumConfigOpt()
-            entry_.sections.extend(edit_yum_sections(entry.sections, exclude))
+            entry_.sections.extend(
+                edit_yum_sections(entry.sections, enablerepo, exclude))
             yield entry_
         elif isinstance(entry, ConfigOpt):
             if root is not None and entry.name == b'root':
@@ -103,27 +114,33 @@ def edit_conf(entries, root=None, exclude=frozenset()):
             raise NotImplementedError('unexpected type: {}'.format(type(entry)))
 
 
-def edit_yum_sections(sections, exclude):
+def edit_yum_sections(sections, enablerepo=frozenset(), exclude=frozenset()):
     for section in sections:
         section_ = YumConfSection.from_header(section.header)
         if section.name != b'main':
-            entries_ = edit_yum_section_entries(section.entries, exclude)
+            entries_ = edit_yum_section_entries(
+                section.entries, section.name in enablerepo, exclude)
         else:
             entries_ = section.entries[:]
         section_.entries.extend(entries_)
         yield section_
 
 
-def edit_yum_section_entries(entries, exclude):
-    exclude_found = False
+def edit_yum_section_entries(entries, enable=False, exclude=frozenset()):
+    enable_found = exclude_found = False
     for entry in entries:
-        if isinstance(entry, YumExcludeLine):
+        if isinstance(entry, YumEnableLine):
+            yield YumEnableLine(ENABLE_REPO_VALUE if enable else entry.value)
+            enable_found = True
+        elif isinstance(entry, YumExcludeLine):
             yield YumExcludeLine(entry.pkgs | exclude)
             exclude_found = True
         elif isinstance(entry, bytes):
             yield entry
         else:
             raise NotImplementedError('unexpected type: {}'.format(type(entry)))
+    if not enable_found and enable:
+        yield YumEnableLine(ENABLE_REPO_VALUE)
     if not exclude_found and exclude:
         yield YumExcludeLine(exclude)
 
@@ -235,6 +252,34 @@ class YumConfSection(StrMixin):
         return cls.header_match(end) or YumConfigOpt.end_match(end)
 
 
+class YumEnableLine(StrMixin):
+
+    __KEY = b'enabled'
+
+    __KEY_RE_ESC = __KEY
+
+    __SEP = b'='
+
+    __SEP_RE_ESC = __SEP
+
+    __REGEX = compile(b''.join(
+        (b'^', __KEY_RE_ESC, b'\s*', __SEP_RE_ESC, b'\s*(?P<value>.*)\n$')))
+
+    def __init__(self, value):
+        self.value = value
+
+    def __bytes__(self):
+        return b''.join((self.__KEY, self.__SEP, self.value, b'\n'))
+
+    @classmethod
+    def from_bytes(cls, bytes_):
+        return cls(cls.match(bytes_).group('value'))
+
+    @classmethod
+    def match(cls, bytes_):
+        return cls.__REGEX.match(bytes_)
+
+
 class YumExcludeLine(StrMixin):
 
     __KEY = b'exclude'
@@ -267,11 +312,11 @@ class YumExcludeLine(StrMixin):
 
 
 if __name__ == '__main__':
-    src_path, dest_path, root, exclude = parse_args()
+    src_path, dest_path, root, enablerepo, exclude = parse_args()
     with TemporaryFile() as temp_file:
         # Save edited config into a temporary file.
         with open(src_path, 'rb') as src_file:
-            copy_edited_conf(src_file, temp_file, root, exclude)
+            copy_edited_conf(src_file, temp_file, root, enablerepo, exclude)
         # Write the temporary file to the destination.
         with open(dest_path, 'wb') as dest_file:
             temp_file.seek(0)
