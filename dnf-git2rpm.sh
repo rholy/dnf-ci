@@ -25,7 +25,8 @@ case "$GIT_EXIT" in
 	# GIT is installed.
 	0) 		GITREV=$(package/archive | tail --lines=1);;
 	# GIT is not installed.
-	127)	GITREV=$(./dnf-git2src-in-mock.sh "$1" "$2" | tail --lines=1);;
+	127)	echo "WARNING: git is not installed => using mock" 1>&2
+			GITREV=$(./dnf-git2src-in-mock.sh "$1" "$2" | tail --lines=1);;
 esac
 mv "$HOME/rpmbuild/SOURCES/dnf-${GITREV}.tar.xz" "$SRC_DIR"
 
@@ -36,7 +37,8 @@ case "$CMAKE_EXIT" in
 	# cmake is installed.
 	0) 		cmake -P dnf-make-spec.cmake;;
 	# cmake is not installed.
-	127)	./dnf-make-spec-in-mock.sh "$1" "$2";;
+	127)	echo "WARNING: cmake is not installed => using mock" 1>&2
+			./dnf-make-spec-in-mock.sh "$1" "$2";;
 esac
 
 # Edit the SPEC file.

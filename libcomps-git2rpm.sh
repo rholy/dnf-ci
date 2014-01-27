@@ -24,18 +24,21 @@ case "$PYTHON_EXIT" in
 	# Python is installed.
 	0) 		IS_PYTHON=0;;
 	# Python is not installed.
-	127)	IS_PYTHON=1;;
+	127)	echo "WARNING: python is not installed" 1>&2
+			IS_PYTHON=1;;
 esac
 git --version >>/dev/null 2>&1; GIT_EXIT=$?
 case "$GIT_EXIT" in
 	# GIT is installed.
 	0) 		IS_GIT=0;;
 	# GIT is not installed.
-	127)	IS_GIT=1;;
+	127)	echo "WARNING: git is not installed" 1>&2
+			IS_GIT=1;;
 esac
 if [ $(($IS_PYTHON + $IS_GIT)) -eq 0 ]; then
 	./build_prep.py;
 else
+	echo "WARNING: => using mock" 1>&2
 	./libcomps-git2src-make-spec-in-mock.sh "$1" "$2"
 fi
 SRC_DIR=.
