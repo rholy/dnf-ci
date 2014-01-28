@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Run python tests.
-# Usage: ./test-python-project-in-mock.sh PYTHON_VERSION CFG_DIR MOCK_CFG
+# Usage: ./test-python-project-in-mock.sh PYTHON_VERSION PYTHONPATH CFG_DIR MOCK_CFG
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -19,9 +19,9 @@
 # Red Hat, Inc.
 
 MOCK_DIR=/tmp/test-python-project-in-mock
-mock --quiet --configdir="$2" --root="$3" --chroot "rm --recursive --force '$MOCK_DIR'"
-mock --quiet --configdir="$2" --root="$3" --copyin . "$MOCK_DIR"
-mock --quiet --configdir="$2" --root="$3" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --configdir="$2" --root="$3" --install python-nose python3-nose
+mock --quiet --configdir="$3" --root="$4" --chroot "rm --recursive --force '$MOCK_DIR'"
+mock --quiet --configdir="$3" --root="$4" --copyin . "$MOCK_DIR"
+mock --quiet --configdir="$3" --root="$4" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
+mock --quiet --configdir="$3" --root="$4" --install python-nose python3-nose
 
-mock --quiet --configdir="$2" --root="$3" --unpriv --shell "cd '$MOCK_DIR'; ./test-python-project.sh '$1'"
+mock --quiet --configdir="$3" --root="$4" --unpriv --shell "cd '$MOCK_DIR'; ./test-python-project.sh '$1' '$2'"

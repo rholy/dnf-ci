@@ -97,7 +97,7 @@ mock --quiet --configdir=. --root="$MOCK_CFG" --init
 mock --quiet --configdir=. --root="$MOCK_CFG" --install "$RPMS_DIR"/*"$RPMS_SUFFIX"
 cd "$BUILD2_DIR"
 cp ../test-python-project.sh ../test-python2-code.sh .
-../test-python-project-in-mock.sh 2.7 .. "$MOCK_CFG" > ../python2-tests.log 2>&1; TESTS2_EXIT=$?
+../test-python-project-in-mock.sh 2.7 . .. "$MOCK_CFG" > ../python2-tests.log 2>&1; TESTS2_EXIT=$?
 ../test-python2-code-in-mock.sh .. "$MOCK_CFG"; LINT2_EXIT=$?
 mv pep8.log ../python2-pep8.log
 sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../python2-pep8.log
@@ -107,7 +107,7 @@ mv pylint.log ../python2-pylint.log
 sed --in-place "s,^[^:]\+:[0-9]\+:,dnf/\0," ../python2-pylint.log
 cd "../$BUILD3_DIR"
 cp ../test-python-project.sh ../test-python3-code.sh .
-../test-python-project-in-mock.sh 3.3 .. "$MOCK_CFG" > ../python3-tests.log 2>&1; TESTS3_EXIT=$?
+../test-python-project-in-mock.sh 3.3 . .. "$MOCK_CFG" > ../python3-tests.log 2>&1; TESTS3_EXIT=$?
 ../test-python3-code-in-mock.sh .. "$MOCK_CFG"; LINT3_EXIT=$?
 mv pep8.log ../python3-pep8.log
 sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../python3-pep8.log

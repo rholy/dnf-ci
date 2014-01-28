@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Run python tests.
-# Usage: ./test-python-project.sh PYTHON_VERSION
+# Usage: ./test-python-project.sh PYTHON_VERSION PYTHONPATH
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -18,7 +18,7 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-export PYTHONPATH=".:$PYTHONPATH"
+export PYTHONPATH="$2:$PYTHONPATH"
 
 # Run tests with default environment.
 export LANG=en_US.UTF-8
