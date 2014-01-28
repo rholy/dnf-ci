@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the librepo RPMs from the GIT repository.
-# Usage: ./librepo-git2rpm.sh
+# Usage: ./librepo-git2rpm.sh TAG_RELEASE
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -21,6 +21,9 @@
 # Download the SPEC file.
 rm --force librepo.spec
 wget --no-verbose http://pkgs.fedoraproject.org/cgit/librepo.git/plain/librepo.spec
+
+# Edit the SPEC file.
+./librepo-edit-spec.sh librepo.spec "$1"
 
 # Build RPM.
 utils/make_rpm.sh .

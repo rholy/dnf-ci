@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Test all projects and code using given configuration.
-# Usage: ./all-test-git-in-mock.sh CFG_PATH SKIP_LINT
+# Usage: ./all-test-git-in-mock.sh CFG_PATH TAG_RELEASE SKIP_LINT
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -34,7 +34,7 @@ echo "...initialization done."
 # Build hawkey.
 echo "Building hawkey RPMs from the GIT repository in $MOCK_CFG mock..."
 cd hawkey
-./hawkey-git2rpm.sh .. "$MOCK_CFG" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; HAWKEY_EXIT=$?
+./hawkey-git2rpm.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; HAWKEY_EXIT=$?
 mv "/var/lib/mock/$MOCK_CFG/result"/*hawkey-*"$RPMS_SUFFIX" "../$RPMS_DIR"
 mv "/var/lib/mock/$MOCK_CFG/result/installed_pkgs" ../hawkey-installed_pkgs
 mv "/var/lib/mock/$MOCK_CFG/result/build.log" ../hawkey-build.log
@@ -48,7 +48,7 @@ fi
 # Build librepo.
 echo "Building librepo RPMs from the GIT repository in $MOCK_CFG mock..."
 cd librepo
-./librepo-git2rpm-in-mock.sh .. "$MOCK_CFG" "../$RPMS_DIR"/*"$RPMS_SUFFIX" > ../librepo-build.log 2>&1; LIBREPO_EXIT=$?
+./librepo-git2rpm-in-mock.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX" > ../librepo-build.log 2>&1; LIBREPO_EXIT=$?
 mv librepo-*.src"$RPMS_SUFFIX" "../$RPMS_DIR"
 mv "$HOME/rpmbuild/RPMS"/*librepo-*"$RPMS_SUFFIX" "../$RPMS_DIR"
 cd ..
@@ -61,7 +61,7 @@ fi
 # Build libcomps.
 echo "Building libcomps RPMs from the GIT repository in $MOCK_CFG mock..."
 cd libcomps
-./libcomps-git2rpm.sh .. "$MOCK_CFG" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; LIBCOMPS_EXIT=$?
+./libcomps-git2rpm.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; LIBCOMPS_EXIT=$?
 mv "/var/lib/mock/$MOCK_CFG/result"/*libcomps-*"$RPMS_SUFFIX" "../$RPMS_DIR"
 mv "/var/lib/mock/$MOCK_CFG/result/installed_pkgs" ../libcomps-installed_pkgs
 mv "/var/lib/mock/$MOCK_CFG/result/build.log" ../libcomps-build.log
@@ -77,7 +77,7 @@ echo "Building dnf RPMs from the GIT repository in $MOCK_CFG mock..."
 DNF_BUILD2=dnf-build2
 DNF_BUILD3=dnf-build3
 cd dnf
-./dnf-git2rpm.sh .. "$MOCK_CFG" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; DNF_EXIT=$?
+./dnf-git2rpm.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; DNF_EXIT=$?
 rm --recursive --force "../$DNF_BUILD2" "../$DNF_BUILD3"
 mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout /builddir/build/BUILD/dnf "../$DNF_BUILD2"
 mv "../$DNF_BUILD2/py3" "../$DNF_BUILD3"
@@ -95,7 +95,7 @@ fi
 echo "Building dnf plugins RPMs from the GIT repository in $MOCK_CFG mock..."
 PLUGINS_BUILD=dnf-plugins-core-build
 cd dnf-plugins-core
-./dnf-plugins-git2rpm.sh .. "$MOCK_CFG" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; PLUGINS_EXIT=$?
+./dnf-plugins-git2rpm.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; PLUGINS_EXIT=$?
 rm --recursive --force "../$PLUGINS_BUILD"
 mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout /builddir/build/BUILD/dnf-plugins-core "../$PLUGINS_BUILD"
 mv "/var/lib/mock/$MOCK_CFG/result"/*dnf-plugins-core*"$RPMS_SUFFIX" "../$RPMS_DIR"
@@ -153,7 +153,7 @@ sed --in-place "s,^[^:]\+:[0-9]\+:,dnf-plugins-core/\0," ../dnf-plugins-core-pyt
 cd ..
 TESTS_EXIT=$(($DNF_TESTS2_EXIT + $DNF_TESTS3_EXIT + $PLG_TESTS2_EXIT + $PLG_TESTS3_EXIT))
 TESTS_EXIT_STR="$DNF_TESTS2_EXIT and $DNF_TESTS3_EXIT and $PLG_TESTS2_EXIT and $PLG_TESTS3_EXIT"
-if [ $2 -ne 1 ]; then
+if [ $3 -ne 1 ]; then
     TESTS_EXIT=$(($TESTS_EXIT + $DNF_LINT2_EXIT + $DNF_LINT3_EXIT + $PLG_LINT2_EXIT + $PLG_LINT3_EXIT))
     TESTS_EXIT_STR="$TESTS_EXIT_STR and $DNF_LINT2_EXIT and $DNF_LINT3_EXIT and $PLG_LINT2_EXIT and $PLG_LINT3_EXIT"
 fi

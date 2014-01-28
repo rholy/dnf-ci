@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
-# Build the dnf plugins RPMs from the GIT repository.
-# Usage: ./dnf-plugins-git2rpm.sh CFG_DIR MOCK_CFG TAG_RELEASE [DEP_PKG...]
+# Edit the libcomps spec file.
+# Usage: ./libcomps-edit-spec.sh SPEC_PATH TAG_RELEASE
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -18,27 +18,6 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-# Convert the GIT repository to a source archive.
-SRC_DIR=.
-git --version >>/dev/null 2>&1; GIT_EXIT=$?
-case "$GIT_EXIT" in
-	# GIT is installed.
-	0) 		GITREV=$(./dnf-plugins-git2src.sh | tail --lines=1);;
-	# GIT is not installed.
-	127)	echo "WARNING: git is not installed => using mock" 1>&2
-			GITREV=$(./dnf-plugins-git2src-in-mock.sh "$1" "$2" | tail --lines=1);;
-esac
-
-# Edit the SPEC file.
-SPEC_PATH=package/dnf-plugins-core.spec
-./dnf-plugins-edit-spec.sh "$SPEC_PATH" "$GITREV" "$3"
-
-# Build the SRPM.
-SRPM_DIR=.
-SRPM_GLOB="$SRPM_DIR"/dnf-plugins-core-*.src.rpm
-rm --force "$SRPM_DIR"/$SRPM_GLOB
-mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR"
-mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
-
-# Build the RPMs.
-./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:4}
+if [ $2 -eq 1 ]; then
+	sed --in-place "s/^\(Release:\s*[0-9]\+\)\(%{?dist}\)$/\1.git%{commit}\2/" "$1"
+fi

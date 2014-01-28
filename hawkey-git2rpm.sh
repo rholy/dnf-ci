@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the hawkey RPMs from the GIT repository.
-# Usage: ./hawkey-git2rpm.sh CFG_DIR MOCK_CFG [DEP_PKG...]
+# Usage: ./hawkey-git2rpm.sh CFG_DIR MOCK_CFG TAG_RELEASE [DEP_PKG...]
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -42,7 +42,7 @@ case "$CMAKE_EXIT" in
 esac
 
 # Edit the SPEC file.
-./hawkey-edit-spec.sh "$SPEC_PATH" "$GITREV"
+./hawkey-edit-spec.sh "$SPEC_PATH" "$GITREV" "$3"
 
 # Build the SRPM.
 SRPM_DIR=.
@@ -52,4 +52,4 @@ mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sour
 mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
 
 # Build the RPMs.
-./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:3}
+./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:4}

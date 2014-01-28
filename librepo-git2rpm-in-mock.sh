@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the librepo RPMs from the GIT repository.
-# Usage: ./librepo-git2rpm-in-mock.sh CFG_DIR MOCK_CFG [DEP_PKG...]
+# Usage: ./librepo-git2rpm-in-mock.sh CFG_DIR MOCK_CFG TAG_RELEASE [DEP_PKG...]
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -27,11 +27,11 @@ mock --quiet --configdir="$1" --root="$2" --chroot "ln --symbolic --force /build
 
 # Install dependencies.
 if [ $# -gt 2 ]; then
-	mock --quiet --configdir="$1" --root="$2" --install ${*:3};
+	mock --quiet --configdir="$1" --root="$2" --install ${*:4};
 fi
 
 # Build RPM.
-mock --quiet --configdir="$1" --root="$2" --unpriv --shell "cd '$MOCK_DIR' && ./librepo-git2rpm.sh"; EXIT=$?
+mock --quiet --configdir="$1" --root="$2" --unpriv --shell "cd '$MOCK_DIR' && ./librepo-git2rpm.sh '$3'"; EXIT=$?
 
 TMP_DIR=/tmp/librepo-git2rpm
 TMP_HOME="$TMP_DIR"/home

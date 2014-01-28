@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the libcomps RPMs from the GIT repository.
-# Usage: ./libcomps-git2rpm.sh CFG_DIR MOCK_CFG [DEP_PKG...]
+# Usage: ./libcomps-git2rpm.sh CFG_DIR MOCK_CFG TAG_RELEASE [DEP_PKG...]
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -44,6 +44,9 @@ fi
 SRC_DIR=.
 SPEC_PATH=libcomps.spec
 
+# Edit the SPEC file.
+./libcomps-edit-spec.sh "$SPEC_PATH" "$3"
+
 # Build the SRPM.
 SRPM_DIR=.
 SRPM_GLOB="$SRPM_DIR"/libcomps-*.src.rpm
@@ -52,4 +55,4 @@ mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sour
 mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
 
 # Build the RPMs.
-./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:3}
+./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:4}
