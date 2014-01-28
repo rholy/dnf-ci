@@ -74,13 +74,13 @@ fi
 
 # Build dnf.
 echo "Building dnf RPMs from the GIT repository in $MOCK_CFG mock..."
-BUILD2_DIR=build-py2
-BUILD3_DIR=build-py3
+DNF_BUILD2=dnf-build2
+DNF_BUILD3=dnf-build3
 cd dnf
 ./dnf-git2rpm.sh .. "$MOCK_CFG" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; DNF_EXIT=$?
-rm --recursive --force "../$BUILD2_DIR" "../$BUILD3_DIR"
-mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout /builddir/build/BUILD/dnf "../$BUILD2_DIR"
-mv "../$BUILD2_DIR/py3" "../$BUILD3_DIR"
+rm --recursive --force "../$DNF_BUILD2" "../$DNF_BUILD3"
+mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout /builddir/build/BUILD/dnf "../$DNF_BUILD2"
+mv "../$DNF_BUILD2/py3" "../$DNF_BUILD3"
 mv "/var/lib/mock/$MOCK_CFG/result"/*dnf-*"$RPMS_SUFFIX" "../$RPMS_DIR"
 mv "/var/lib/mock/$MOCK_CFG/result/installed_pkgs" ../dnf-installed_pkgs
 mv "/var/lib/mock/$MOCK_CFG/result/build.log" ../dnf-build.log
@@ -91,36 +91,71 @@ else
 	echo "...build failed with $DNF_EXIT."
 fi
 
+# Build dnf plugins.
+echo "Building dnf plugins RPMs from the GIT repository in $MOCK_CFG mock..."
+PLUGINS_BUILD=dnf-plugins-core-build
+cd dnf-plugins-core
+./dnf-plugins-git2rpm.sh .. "$MOCK_CFG" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; PLUGINS_EXIT=$?
+rm --recursive --force "../$PLUGINS_BUILD"
+mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout /builddir/build/BUILD/dnf-plugins-core "../$PLUGINS_BUILD"
+mv "/var/lib/mock/$MOCK_CFG/result"/*dnf-plugins-core*"$RPMS_SUFFIX" "../$RPMS_DIR"
+mv "/var/lib/mock/$MOCK_CFG/result/installed_pkgs" ../dnf-plugins-core-installed_pkgs
+mv "/var/lib/mock/$MOCK_CFG/result/build.log" ../dnf-plugins-core-build.log
+cd ..
+if [ $PLUGINS_EXIT -eq 0 ]; then
+	echo "...build succeeded."
+else
+	echo "...build failed with $PLUGINS_EXIT."
+fi
+
 # Test builds.
 echo "Running tests in $MOCK_CFG mock..."
 mock --quiet --configdir=. --root="$MOCK_CFG" --init
 mock --quiet --configdir=. --root="$MOCK_CFG" --install "$RPMS_DIR"/*"$RPMS_SUFFIX"
-cd "$BUILD2_DIR"
+cd "$DNF_BUILD2" # dnf python 2
 cp ../test-python-project.sh ../test-python2-code.sh .
-../test-python-project-in-mock.sh 2.7 . .. "$MOCK_CFG" > ../python2-tests.log 2>&1; TESTS2_EXIT=$?
-../test-python2-code-in-mock.sh .. "$MOCK_CFG"; LINT2_EXIT=$?
-mv pep8.log ../python2-pep8.log
-sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../python2-pep8.log
-mv pyflakes.log ../python2-pyflakes.log
-sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../python2-pyflakes.log
-mv pylint.log ../python2-pylint.log
-sed --in-place "s,^[^:]\+:[0-9]\+:,dnf/\0," ../python2-pylint.log
-cd "../$BUILD3_DIR"
+../test-python-project-in-mock.sh 2.7 . .. "$MOCK_CFG" > ../dnf-python2-tests.log 2>&1; DNF_TESTS2_EXIT=$?
+../test-python2-code-in-mock.sh .. "$MOCK_CFG"; DNF_LINT2_EXIT=$?
+mv pep8.log ../dnf-python2-pep8.log
+sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../dnf-python2-pep8.log
+mv pyflakes.log ../dnf-python2-pyflakes.log
+sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../dnf-python2-pyflakes.log
+mv pylint.log ../dnf-python2-pylint.log
+sed --in-place "s,^[^:]\+:[0-9]\+:,dnf/\0," ../dnf-python2-pylint.log
+cd "../$DNF_BUILD3" # dnf python 3
 cp ../test-python-project.sh ../test-python3-code.sh .
-../test-python-project-in-mock.sh 3.3 . .. "$MOCK_CFG" > ../python3-tests.log 2>&1; TESTS3_EXIT=$?
-../test-python3-code-in-mock.sh .. "$MOCK_CFG"; LINT3_EXIT=$?
-mv pep8.log ../python3-pep8.log
-sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../python3-pep8.log
-mv pyflakes.log ../python3-pyflakes.log
-sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../python3-pyflakes.log
-mv pylint.log ../python3-pylint.log
-sed --in-place "s,^[^:]\+:[0-9]\+:,dnf/\0," ../python3-pylint.log
+../test-python-project-in-mock.sh 3.3 . .. "$MOCK_CFG" > ../dnf-python3-tests.log 2>&1; DNF_TESTS3_EXIT=$?
+../test-python3-code-in-mock.sh .. "$MOCK_CFG"; DNF_LINT3_EXIT=$?
+mv pep8.log ../dnf-python3-pep8.log
+sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../dnf-python3-pep8.log
+mv pyflakes.log ../dnf-python3-pyflakes.log
+sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../dnf-python3-pyflakes.log
+mv pylint.log ../dnf-python3-pylint.log
+sed --in-place "s,^[^:]\+:[0-9]\+:,dnf/\0," ../dnf-python3-pylint.log
+cd "../$PLUGINS_BUILD" # dnf-plugins-core python
+cp ../test-python-project.sh ../test-python2-code.sh ../test-python3-code.sh .
+../test-python-project-in-mock.sh 2.7 plugins .. "$MOCK_CFG" > ../dnf-plugins-core-python2-tests.log 2>&1; PLG_TESTS2_EXIT=$?
+../test-python-project-in-mock.sh 3.3 plugins .. "$MOCK_CFG" > ../dnf-plugins-core-python3-tests.log 2>&1; PLG_TESTS3_EXIT=$?
+../test-python2-code-in-mock.sh .. "$MOCK_CFG"; PLG_LINT2_EXIT=$?
+mv pep8.log ../dnf-plugins-core-python2-pep8.log
+sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf-plugins-core/\1," ../dnf-plugins-core-python2-pep8.log
+mv pyflakes.log ../dnf-plugins-core-python2-pyflakes.log
+sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf-plugins-core/\1," ../dnf-plugins-core-python2-pyflakes.log
+mv pylint.log ../dnf-plugins-core-python2-pylint.log
+sed --in-place "s,^[^:]\+:[0-9]\+:,dnf-plugins-core/\0," ../dnf-plugins-core-python2-pylint.log
+../test-python3-code-in-mock.sh .. "$MOCK_CFG"; PLG_LINT3_EXIT=$?
+mv pep8.log ../dnf-plugins-core-python3-pep8.log
+sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf-plugins-core/\1," ../dnf-plugins-core-python3-pep8.log
+mv pyflakes.log ../dnf-plugins-core-python3-pyflakes.log
+sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf-plugins-core/\1," ../dnf-plugins-core-python3-pyflakes.log
+mv pylint.log ../dnf-plugins-core-python3-pylint.log
+sed --in-place "s,^[^:]\+:[0-9]\+:,dnf-plugins-core/\0," ../dnf-plugins-core-python3-pylint.log
 cd ..
-TESTS_EXIT=$(($TESTS2_EXIT + $TESTS3_EXIT))
-TESTS_EXIT_STR="$TESTS2_EXIT and $TESTS3_EXIT"
+TESTS_EXIT=$(($DNF_TESTS2_EXIT + $DNF_TESTS3_EXIT + $PLG_TESTS2_EXIT + $PLG_TESTS3_EXIT))
+TESTS_EXIT_STR="$DNF_TESTS2_EXIT and $DNF_TESTS3_EXIT and $PLG_TESTS2_EXIT and $PLG_TESTS3_EXIT"
 if [ $2 -ne 1 ]; then
-    TESTS_EXIT=$(($TESTS_EXIT + $LINT2_EXIT + $LINT3_EXIT))
-    TESTS_EXIT_STR="$TESTS_EXIT_STR and $LINT2_EXIT and $LINT3_EXIT"
+    TESTS_EXIT=$(($TESTS_EXIT + $DNF_LINT2_EXIT + $DNF_LINT3_EXIT + $PLG_LINT2_EXIT + $PLG_LINT3_EXIT))
+    TESTS_EXIT_STR="$TESTS_EXIT_STR and $DNF_LINT2_EXIT and $DNF_LINT3_EXIT and $PLG_LINT2_EXIT and $PLG_LINT3_EXIT"
 fi
 if [ $TESTS_EXIT -eq 0 ]; then
 	echo "...test succeeded."
@@ -128,7 +163,7 @@ else
 	echo "...test failed with $TESTS_EXIT_STR."
 fi
 
-EXIT=$(($HAWKEY_EXIT + $LIBREPO_EXIT + $LIBCOMPS_EXIT + $DNF_EXIT + $TESTS_EXIT))
+EXIT=$(($HAWKEY_EXIT + $LIBREPO_EXIT + $LIBCOMPS_EXIT + $DNF_EXIT + $PLUGINS_EXIT + $TESTS_EXIT))
 if [ $EXIT -eq 0 ]; then
 	echo "...test succeeded."
 else
