@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Edit the hawkey spec file.
-# Usage: ./hawkey-edit-spec.sh SPEC_PATH GIT_REV TAG_RELEASE
+# Usage: ./hawkey-edit-spec.sh SPEC_PATH GIT_REV BUILD_NUMBER
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -19,6 +19,6 @@
 # Red Hat, Inc.
 
 sed --in-place "s/%global gitrev [a-zA-Z0-9]\{7\}/%global gitrev $2/g" "$1"
-if [ $3 -eq 1 ]; then
-	sed --in-place "s/^\(Release:\s*[0-9]\+\)\(%{?dist}\)$/\1.git%{gitrev}\2/" "$1"
+if [ $3 -ne 0 ]; then
+	sed --in-place "s/^\(Release:\s*\)[0-9]\+\(%{?dist}\)$/\199.$3.%(date +%%Y%%m%%d)git%{gitrev}\2/" "$1"
 fi

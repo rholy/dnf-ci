@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Test all projects and code using given configuration.
-# Usage: ./all-test-git-in-mock.sh CFG_PATH TAG_RELEASE SKIP_LINT
+# Usage: ./all-test-git-in-mock.sh CFG_PATH BUILD_NUMBER SKIP_LINT
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #

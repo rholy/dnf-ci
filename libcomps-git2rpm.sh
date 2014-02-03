@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the libcomps RPMs from the GIT repository.
-# Usage: ./libcomps-git2rpm.sh CFG_DIR MOCK_CFG TAG_RELEASE [DEP_PKG...]
+# Usage: ./libcomps-git2rpm.sh CFG_DIR MOCK_CFG BUILD_NUMBER [DEP_PKG...]
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #

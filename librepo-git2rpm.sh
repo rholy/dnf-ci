@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the librepo RPMs from the GIT repository.
-# Usage: ./librepo-git2rpm.sh TAG_RELEASE
+# Usage: ./librepo-git2rpm.sh BUILD_NUMBER
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #

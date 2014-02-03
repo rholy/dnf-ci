@@ -19,7 +19,6 @@
 # Red Hat, Inc.
 
 MOCK_CFGS=(/etc/mock/fedora-20-x86_64.cfg /etc/mock/fedora-20-i386.cfg)
-TAG_RELEASE=1
 IGNORE_LINT=1
 ARTIFACTS_SUFFIX=-build
 PEP_SUFFIX=-pep8.log
@@ -39,7 +38,7 @@ rm --recursive --force *"$ARTIFACTS_SUFFIX"
 
 EXIT=0
 for MOCK_CFG in "${MOCK_CFGS[@]}"; do
-    dnf-ci/all-test-git-in-mock.sh "$MOCK_CFG" "$TAG_RELEASE" "$IGNORE_LINT"; EXIT=$(($EXIT + $?))
+    dnf-ci/all-test-git-in-mock.sh "$MOCK_CFG" "$BUILD_NUMBER" "$IGNORE_LINT"; EXIT=$(($EXIT + $?))
 
     ARTIFACTS_DIR=$(basename "$MOCK_CFG" | sed 's/.cfg$//')"$ARTIFACTS_SUFFIX"
     mkdir --parents "$ARTIFACTS_DIR"

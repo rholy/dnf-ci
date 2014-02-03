@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Build the dnf plugins RPMs from the GIT repository.
-# Usage: ./dnf-plugins-git2rpm.sh CFG_DIR MOCK_CFG TAG_RELEASE [DEP_PKG...]
+# Usage: ./dnf-plugins-git2rpm.sh CFG_DIR MOCK_CFG BUILD_NUMBER [DEP_PKG...]
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #

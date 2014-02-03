@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Edit the libcomps spec file.
-# Usage: ./libcomps-edit-spec.sh SPEC_PATH TAG_RELEASE
+# Usage: ./libcomps-edit-spec.sh SPEC_PATH BUILD_NUMBER
 #
 # Copyright (C) 2014  Red Hat, Inc.
 #
@@ -18,6 +18,6 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-if [ $2 -eq 1 ]; then
-	sed --in-place "s/^\(Release:\s*[0-9]\+\)\(%{?dist}\)$/\1.git%{commit}\2/" "$1"
+if [ $2 -ne 0 ]; then
+	sed --in-place "s/^\(Release:\s*\)[0-9]\+\(%{?dist}\)$/\199.$2.%(date +%%Y%%m%%d)git%{commit}\2/" "$1"
 fi
