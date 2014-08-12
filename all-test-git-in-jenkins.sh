@@ -18,7 +18,7 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-MOCK_CFGS=(/etc/mock/fedora-20-x86_64.cfg /etc/mock/fedora-20-i386.cfg)
+MOCK_CFGS=(fedora-21-x86_64-dnf.cfg fedora-21-i386-dnf.cfg)
 IGNORE_LINT=1
 ARTIFACTS_SUFFIX=-build
 PEP_SUFFIX=-pep8.log
@@ -26,7 +26,6 @@ PYFLAKES_SUFFIX=-pyflakes.log
 PYLINT_SUFFIX=-pylint.log
 
 # Place all scripts required by the code below and by the scripts themselves.
-cp dnf-ci/edit_mock_cfg.py .
 cp dnf-ci/hawkey-git2rpm.sh dnf-ci/hawkey-git2src-in-mock.sh dnf-ci/hawkey-make-spec-in-mock.sh dnf-ci/hawkey-make-spec.cmake dnf-ci/hawkey-edit-spec.sh dnf-ci/srpm2rpm-with-deps.sh hawkey
 cp dnf-ci/librepo-git2rpm-in-mock.sh dnf-ci/librepo-git2rpm.sh dnf-ci/librepo-edit-spec.sh librepo
 cp dnf-ci/libcomps-git2rpm.sh dnf-ci/libcomps-git2src-make-spec-in-mock.sh dnf-ci/libcomps-edit-spec.sh dnf-ci/srpm2rpm-with-deps.sh libcomps
@@ -38,9 +37,10 @@ rm --recursive --force *"$ARTIFACTS_SUFFIX"
 
 EXIT=0
 for MOCK_CFG in "${MOCK_CFGS[@]}"; do
+    cp "dnf-ci/$MOCK_CFG" .
     dnf-ci/all-test-git-in-mock.sh "$MOCK_CFG" "$BUILD_NUMBER" "$IGNORE_LINT"; EXIT=$(($EXIT + $?))
 
-    ARTIFACTS_DIR=$(basename "$MOCK_CFG" | sed 's/.cfg$//')"$ARTIFACTS_SUFFIX"
+    ARTIFACTS_DIR=$(basename "$MOCK_CFG" | sed 's/-dnf.cfg$//')"$ARTIFACTS_SUFFIX"
     mkdir --parents "$ARTIFACTS_DIR"
     mv *.rpm *"$PEP_SUFFIX" *"$PYFLAKES_SUFFIX" *"$PYLINT_SUFFIX" "$ARTIFACTS_DIR"
     createrepo "$ARTIFACTS_DIR"

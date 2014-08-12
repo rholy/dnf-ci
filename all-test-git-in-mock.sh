@@ -18,16 +18,15 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-MOCK_CFG=$(basename "$1" | sed 's/.cfg$//')-excl
+MOCK_CFG=$(basename "$1" | sed 's/.cfg$//')
 RPMS_DIR=.
 RPMS_SUFFIX=.rpm
-echo "Testing all projects and code using $MOCK_CFG.cfg..."
+echo "Testing all projects and code using $1..."
 
 # Initialize the modified mock.
 echo "Initializing the $MOCK_CFG mock..."
 cp /etc/mock/site-defaults.cfg .
 cp /etc/mock/logging.ini .
-./edit_mock_cfg.py --root="$MOCK_CFG" --enablerepo=updates-testing --exclude=hawkey --exclude=librepo --exclude=libcomps --exclude=dnf "$1" "$MOCK_CFG.cfg"
 mock --quiet --configdir=. --root="$MOCK_CFG" --init
 echo "...initialization done."
 
@@ -124,7 +123,7 @@ mv pylint.log ../dnf-python2-pylint.log
 sed --in-place "s,^[^:]\+:[0-9]\+:,dnf/\0," ../dnf-python2-pylint.log
 cd "../$DNF_BUILD3" # dnf python 3
 cp ../test-python-project.sh ../test-python3-code.sh .
-../test-python-project-in-mock.sh 3.3 . .. "$MOCK_CFG" > ../dnf-python3-tests.log 2>&1; DNF_TESTS3_EXIT=$?
+../test-python-project-in-mock.sh 3.4 . .. "$MOCK_CFG" > ../dnf-python3-tests.log 2>&1; DNF_TESTS3_EXIT=$?
 ../test-python3-code-in-mock.sh .. "$MOCK_CFG"; DNF_LINT3_EXIT=$?
 mv pep8.log ../dnf-python3-pep8.log
 sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf/\1," ../dnf-python3-pep8.log
@@ -135,7 +134,7 @@ sed --in-place "s,^[^:]\+:[0-9]\+:,dnf/\0," ../dnf-python3-pylint.log
 cd "../$PLUGINS_BUILD" # dnf-plugins-core python
 cp ../test-python-project.sh ../test-python2-code.sh ../test-python3-code.sh .
 ../test-python-project-in-mock.sh 2.7 plugins .. "$MOCK_CFG" > ../dnf-plugins-core-python2-tests.log 2>&1; PLG_TESTS2_EXIT=$?
-../test-python-project-in-mock.sh 3.3 plugins .. "$MOCK_CFG" > ../dnf-plugins-core-python3-tests.log 2>&1; PLG_TESTS3_EXIT=$?
+../test-python-project-in-mock.sh 3.4 plugins .. "$MOCK_CFG" > ../dnf-plugins-core-python3-tests.log 2>&1; PLG_TESTS3_EXIT=$?
 ../test-python2-code-in-mock.sh .. "$MOCK_CFG"; PLG_LINT2_EXIT=$?
 mv pep8.log ../dnf-plugins-core-python2-pep8.log
 sed --in-place "s,^\./\([^:]\+:[0-9]\+:.*\),dnf-plugins-core/\1," ../dnf-plugins-core-python2-pep8.log
