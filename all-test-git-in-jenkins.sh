@@ -46,4 +46,10 @@ for MOCK_CFG in "${MOCK_CFGS[@]}"; do
     createrepo "$ARTIFACTS_DIR"
 done
 
+OLD_REPOS=(fedora-20-x86_64-build fedora-20-i386-build)
+for REPO in "${OLD_REPOS[@]}"; do
+    mkdir "$REPO"
+    createrepo "$REPO"
+done
+
 exit $EXIT
