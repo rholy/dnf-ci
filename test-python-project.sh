@@ -23,16 +23,16 @@ export PYTHONPATH="$2:$PYTHONPATH"
 # Run tests with default environment.
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-nosetests-$1 --quiet .; EXIT1=$?
+nosetests-$1 --quiet tests; EXIT1=$?
 
 # Run tests with cs locale.
 export LANG=cs_CZ.utf8
 export LC_ALL=cs_CZ.utf8
-nosetests-$1 --quiet .; EXIT2=$?
+nosetests-$1 --quiet tests; EXIT2=$?
 
 # Run tests without capturing the output.
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-nosetests-$1 --quiet --nocapture .; EXIT3=$?
+nosetests-$1 --quiet --nocapture tests; EXIT3=$?
 
 exit $(($EXIT1 + $EXIT2 + $EXIT3))
