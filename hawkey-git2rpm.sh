@@ -28,7 +28,7 @@ case "$GIT_EXIT" in
 	127)	echo "WARNING: git is not installed => using mock" 1>&2
 			GITREV=$(./hawkey-git2src-in-mock.sh "$1" "$2" | tail --lines=1);;
 esac
-mv "$HOME/rpmbuild/SOURCES/hawkey-${GITREV}.tar.xz" "$SRC_DIR"
+mv "$HOME/rpmbuild/SOURCES/hawkey-${GITREV}.tar.gz" "$SRC_DIR"
 
 # Make the SPEC file.
 SPEC_PATH=package/hawkey.spec
