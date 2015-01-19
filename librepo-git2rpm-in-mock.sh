@@ -23,7 +23,7 @@ mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOC
 mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
 mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
 mock --quiet --configdir="$1" --root="$2" --chroot "chmod --recursive +w '$MOCK_DIR'"
-mock --quiet --configdir="$1" --root="$2" --install wget yum git check-devel cmake expat-devel gcc glib2-devel gpgme-devel libattr-devel libcurl-devel openssl-devel python-devel python3-devel pygpgme python3-pygpgme python-flask python3-flask python-nose python3-nose doxygen python-sphinx python3-sphinx
+mock --quiet --configdir="$1" --root="$2" --install wget yum git check-devel cmake expat-devel gcc glib2-devel gpgme-devel libattr-devel libcurl-devel openssl-devel python-devel python3-devel pygpgme python3-pygpgme python-flask python3-flask python-nose python3-nose pyxattr python3-pyxattr doxygen python-sphinx python3-sphinx
 mock --quiet --configdir="$1" --root="$2" --chroot "ln --symbolic --force /builddir/build \"\$HOME/rpmbuild\""
 
 # Install dependencies.
