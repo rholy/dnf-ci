@@ -2,7 +2,7 @@
 # Edit the hawkey spec file.
 # Usage: ./hawkey-edit-spec.sh SPEC_PATH GIT_REV BUILD_NUMBER
 #
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -18,7 +18,7 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-sed --in-place "s/%global gitrev [a-zA-Z0-9]\{7\}/%global gitrev $2/g" "$1"
+sed --in-place "s/%global gitrev [a-zA-Z0-9]\{40\}/%global gitrev $2/g" "$1"
 if [ $3 -ne 0 ]; then
 	sed --in-place "s/^\(Release:\s*\)[0-9]\+\(%{?dist}\)$/\199.$3.%(date +%%Y%%m%%d)git%{gitrev}\2/" "$1"
 fi
