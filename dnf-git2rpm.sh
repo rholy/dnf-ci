@@ -42,13 +42,18 @@ case "$CMAKE_EXIT" in
 esac
 
 # Edit the SPEC file.
-./dnf-edit-spec.sh "$SPEC_PATH" "$GITREV" "$3"
+if [ -n "$3" ] ; then
+        SNAPSHOT=".$3.%(date +%%Y%%m%%d)git%{gitrev}"
+else
+        SNAPSHOT='%{nil}'
+fi
 
 # Build the SRPM.
 SRPM_DIR=.
 SRPM_GLOB="$SRPM_DIR"/dnf-*.src.rpm
 rm --force "$SRPM_DIR"/$SRPM_GLOB
-mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR"
+mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR" \
+        --define "gitrev $GITREV" --define "snapshot $SNAPSHOT"
 mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
 
 # Build the RPMs.
