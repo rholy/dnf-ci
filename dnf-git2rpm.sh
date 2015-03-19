@@ -2,7 +2,7 @@
 # Build the dnf RPMs from the GIT repository.
 # Usage: ./dnf-git2rpm.sh CFG_DIR MOCK_CFG BUILD_NUMBER [DEP_PKG...]
 #
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -57,4 +57,4 @@ mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sour
 mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
 
 # Build the RPMs.
-./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:4}
+./srpm2rpm-with-deps.sh "--define='gitrev $GITREV' --define='snapshot $SNAPSHOT' $SRPM_GLOB" "$1" "$2" ${*:4}
