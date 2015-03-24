@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
-# Build the librepo RPMs from the GIT repository.
-# Usage: ./librepo-git2rpm.sh BUILD_NUMBER
+# Edit the librepo make_rpm.sh file.
+# Usage: ./librepo-edit-make_rpm.sh MAKE_PATH
 #
-# Copyright (C) 2014-2015  Red Hat, Inc.
+# Copyright (C) 2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -18,15 +18,5 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-# Download the SPEC file.
-rm --force librepo.spec
-wget --no-verbose http://pkgs.fedoraproject.org/cgit/librepo.git/plain/librepo.spec
-
-# Edit the SPEC file.
-./librepo-edit-spec.sh librepo.spec "$1"
-
-# Edit the make_rpm.sh file.
-./librepo-edit-make_rpm.sh utils/make_rpm.sh
-
-# Build RPM.
-utils/make_rpm.sh .
+# Insert --nocheck as a workaround (see https://github.com/Tojaj/librepo/issues/49).
+sed --in-place 's,^\(rpmbuild\s\+-ba\s\+\)\("$RPMBUILD_DIR/SPECS/$PACKAGE.spec"\s*\),\1--nocheck \2,g' "$1"
