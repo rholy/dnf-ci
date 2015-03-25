@@ -18,6 +18,11 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
+# Temporary fix of missing tags in the repository (tito builds 0.6.4 but we need 0.6.5).
+sed --in-place "s/^Version:\s*0.6.4\s*$/Version: 0.6.5/g" dnf.spec
+git add dnf.spec
+git commit -m "workaround"
+
 MOCK_DIR=/tmp/dnf-git2rpm
 mock --quiet --configdir="$1" --root="$2" --init
 mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOCK_DIR'"
