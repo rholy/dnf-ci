@@ -18,43 +18,23 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-# Convert the GIT repository to a source archive.
-SRC_DIR=.
+MOCK_DIR=/tmp/dnf-git2rpm
+mock --quiet --configdir="$1" --root="$2" --init
+mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
+mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --install git yum-utils tito ${*:4}
+
+# Get GIT revision hash.
 git --version >>/dev/null 2>&1; GIT_EXIT=$?
 case "$GIT_EXIT" in
 	# GIT is installed.
-	0) 		GITREV=$(package/archive | tail --lines=1);;
+	0)	GITREV=$(git rev-parse HEAD);;
 	# GIT is not installed.
 	127)	echo "WARNING: git is not installed => using mock" 1>&2
-			GITREV=$(./dnf-git2src-in-mock.sh "$1" "$2" | tail --lines=1);;
+		GITREV=$(mock --quiet --configdir="$1" --root="$2" --unpriv --chroot "git -C '$MOCK_DIR' rev-parse HEAD");;
 esac
-mv "$HOME/rpmbuild/SOURCES/dnf-${GITREV}.tar.xz" "$SRC_DIR"
-
-# Make the SPEC file.
-SPEC_PATH=package/dnf.spec
-cmake --version >>/dev/null 2>&1; CMAKE_EXIT=$?
-case "$CMAKE_EXIT" in
-	# cmake is installed.
-	0) 		cmake -P dnf-make-spec.cmake;;
-	# cmake is not installed.
-	127)	echo "WARNING: cmake is not installed => using mock" 1>&2
-			./dnf-make-spec-in-mock.sh "$1" "$2";;
-esac
-
-# Edit the SPEC file.
-if [ -n "$3" ] ; then
-        SNAPSHOT=".$3.%(date +%%Y%%m%%d)git%{gitrev}"
-else
-        SNAPSHOT='%{nil}'
-fi
-
-# Build the SRPM.
-SRPM_DIR=.
-SRPM_GLOB="$SRPM_DIR"/dnf-*.src.rpm
-rm --force "$SRPM_DIR"/$SRPM_GLOB
-mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR" \
-        --define "gitrev $GITREV" --define "snapshot $SNAPSHOT"
-mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
 
 # Build the RPMs.
-./srpm2rpm-with-deps.sh "--define='gitrev $GITREV' --define='snapshot $SNAPSHOT' $SRPM_GLOB" "$1" "$2" ${*:4}
+mock --quiet --configdir="$1" --root="$2" --chroot "yum-builddep '$MOCK_DIR/dnf.spec'"
+mock --quiet --configdir="$1" --root="$2" --unpriv --chroot "cd $MOCK_DIR; tito build --debug --rpm --test --no-cleanup --rpmbuild-options=\"--define='snapshot .$3.%(date +%%Y%%m%%d)git$GITREV'\""
