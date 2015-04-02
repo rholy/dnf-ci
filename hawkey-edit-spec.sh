@@ -18,7 +18,6 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-sed --in-place "s/%global gitrev [a-zA-Z0-9]\{40\}/%global gitrev $2/g" "$1"
 if [ $3 -ne 0 ]; then
-	sed --in-place "s/^\(Release:\s*\)[0-9]\+\(%{?dist}\)$/\199.$3.%(date +%%Y%%m%%d)git%{gitrev}\2/" "$1"
+	sed --in-place "s/^\(Release:\s*\)[0-9]\+\(%{?dist}\)$/\199.$3.%(date +%%Y%%m%%d)git$2\2/" "$1"
 fi

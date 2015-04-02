@@ -2,7 +2,7 @@
 # Build the hawkey RPMs from the GIT repository.
 # Usage: ./hawkey-git2rpm.sh CFG_DIR MOCK_CFG BUILD_NUMBER [DEP_PKG...]
 #
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -18,38 +18,12 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-# Convert the GIT repository to a source archive.
-SRC_DIR=.
-git --version >>/dev/null 2>&1; GIT_EXIT=$?
-case "$GIT_EXIT" in
-	# GIT is installed.
-	0) 		GITREV=$(package/archive | tail --lines=1);;
-	# GIT is not installed.
-	127)	echo "WARNING: git is not installed => using mock" 1>&2
-			GITREV=$(./hawkey-git2src-in-mock.sh "$1" "$2" | tail --lines=1);;
-esac
-mv "$HOME/rpmbuild/SOURCES/hawkey-${GITREV}.tar.gz" "$SRC_DIR"
-
-# Make the SPEC file.
-SPEC_PATH=package/hawkey.spec
-cmake --version >>/dev/null 2>&1; CMAKE_EXIT=$?
-case "$CMAKE_EXIT" in
-	# cmake is installed.
-	0) 		cmake -P hawkey-make-spec.cmake;;
-	# cmake is not installed.
-	127)	echo "WARNING: cmake is not installed => using mock" 1>&2
-			./hawkey-make-spec-in-mock.sh "$1" "$2";;
-esac
-
 # Edit the SPEC file.
+SPEC_PATH=hawkey.spec
+GITREV=$(git rev-parse HEAD)
 ./hawkey-edit-spec.sh "$SPEC_PATH" "$GITREV" "$3"
-
-# Build the SRPM.
-SRPM_DIR=.
-SRPM_GLOB="$SRPM_DIR"/hawkey-*.src.rpm
-rm --force "$SRPM_DIR"/$SRPM_GLOB
-mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR"
-mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
+git add "$SPEC_PATH"
+git commit --message="Set a snapshot release."
 
 # Build the RPMs.
-./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:4}
+tito build --rpm --test --no-cleanup --builder=mock --arg=mock="$2" --arg="mock_config_dir=$1"

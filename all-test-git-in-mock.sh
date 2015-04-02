@@ -33,10 +33,9 @@ echo "...initialization done."
 # Build hawkey.
 echo "Building hawkey RPMs from the GIT repository in $MOCK_CFG mock..."
 cd hawkey
-./hawkey-git2rpm.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX"; HAWKEY_EXIT=$?
-mv "/var/lib/mock/$MOCK_CFG/result"/*hawkey-*"$RPMS_SUFFIX" "../$RPMS_DIR"
-mv "/var/lib/mock/$MOCK_CFG/result/installed_pkgs" ../hawkey-installed_pkgs
-mv "/var/lib/mock/$MOCK_CFG/result/build.log" ../hawkey-build.log
+rm --force "/tmp/tito"/*hawkey-*"$RPMS_SUFFIX"
+./hawkey-git2rpm.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX" > ../hawkey-build.log 2>&1; HAWKEY_EXIT=$?
+mv "/tmp/tito"/*hawkey-*"$RPMS_SUFFIX" "../$RPMS_DIR"
 cd ..
 if [ $HAWKEY_EXIT -eq 0 ]; then
 	echo "...build succeeded."

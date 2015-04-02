@@ -26,7 +26,7 @@ PYFLAKES_SUFFIX=-pyflakes.log
 PYLINT_SUFFIX=-pylint.log
 
 # Place all scripts required by the code below and by the scripts themselves.
-cp dnf-ci/hawkey-git2rpm.sh dnf-ci/hawkey-git2src-in-mock.sh dnf-ci/hawkey-make-spec-in-mock.sh dnf-ci/hawkey-make-spec.cmake dnf-ci/hawkey-edit-spec.sh dnf-ci/srpm2rpm-with-deps.sh hawkey
+cp dnf-ci/hawkey-git2rpm.sh dnf-ci/hawkey-edit-spec.sh hawkey
 cp dnf-ci/librepo-git2rpm-in-mock.sh dnf-ci/librepo-git2rpm.sh dnf-ci/librepo-edit-spec.sh dnf-ci/librepo-edit-make_rpm.sh librepo
 cp dnf-ci/libcomps-git2rpm.sh dnf-ci/libcomps-git2src-make-spec-in-mock.sh dnf-ci/libcomps-edit-spec.sh dnf-ci/srpm2rpm-with-deps.sh libcomps
 cp dnf-ci/dnf-git2rpm.sh dnf
