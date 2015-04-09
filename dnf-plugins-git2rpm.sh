@@ -22,7 +22,9 @@ MOCK_DIR=/tmp/dnf-plugins-git2rpm
 mock --quiet --configdir="$1" --root="$2" --init
 mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
 mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --configdir="$1" --root="$2" --install git yum-utils tito ${*:4}
+DEPS=(${*:4})
+DEPS=(${DEPS[@]//dnf-yum-*})
+mock --quiet --configdir="$1" --root="$2" --install git yum-utils tito ${DEPS[@]}
 
 # Get GIT revision hash.
 git --version >>/dev/null 2>&1; GIT_EXIT=$?
