@@ -30,7 +30,7 @@ cp dnf-ci/hawkey-git2rpm.sh dnf-ci/hawkey-edit-spec.sh hawkey
 cp dnf-ci/librepo-git2rpm-in-mock.sh dnf-ci/librepo-git2rpm.sh dnf-ci/librepo-edit-spec.sh dnf-ci/librepo-edit-make_rpm.sh librepo
 cp dnf-ci/libcomps-git2rpm.sh dnf-ci/libcomps-git2src-make-spec-in-mock.sh dnf-ci/libcomps-edit-spec.sh dnf-ci/srpm2rpm-with-deps.sh libcomps
 cp dnf-ci/dnf-git2rpm.sh dnf
-cp dnf-ci/dnf-plugins-git2rpm.sh dnf-ci/dnf-plugins-git2src-in-mock.sh dnf-ci/dnf-plugins-git2src.sh dnf-ci/dnf-plugins-edit-spec.sh dnf-ci/srpm2rpm-with-deps.sh dnf-plugins-core
+cp dnf-ci/dnf-plugins-git2rpm.sh dnf-ci/dnf-plugins-edit-spec.sh dnf-plugins-core
 cp dnf-ci/test-python-project-in-mock.sh dnf-ci/test-python-project.sh dnf-ci/test-python2-code-in-mock.sh dnf-ci/test-python2-code.sh dnf-ci/test-python3-code-in-mock.sh dnf-ci/test-python3-code.sh .
 
 rm --recursive --force *"$ARTIFACTS_SUFFIX"

@@ -2,7 +2,7 @@
 # Build the dnf plugins RPMs from the GIT repository.
 # Usage: ./dnf-plugins-git2rpm.sh CFG_DIR MOCK_CFG BUILD_NUMBER [DEP_PKG...]
 #
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -18,27 +18,26 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-# Convert the GIT repository to a source archive.
-SRC_DIR=.
+MOCK_DIR=/tmp/dnf-plugins-git2rpm
+mock --quiet --configdir="$1" --root="$2" --init
+mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
+mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
+mock --quiet --configdir="$1" --root="$2" --install git yum-utils tito ${*:4}
+
+# Get GIT revision hash.
 git --version >>/dev/null 2>&1; GIT_EXIT=$?
 case "$GIT_EXIT" in
 	# GIT is installed.
-	0) 		GITREV=$(./dnf-plugins-git2src.sh | tail --lines=1);;
+	0)	GITREV=$(git rev-parse HEAD);;
 	# GIT is not installed.
 	127)	echo "WARNING: git is not installed => using mock" 1>&2
-			GITREV=$(./dnf-plugins-git2src-in-mock.sh "$1" "$2" | tail --lines=1);;
+		GITREV=$(mock --quiet --configdir="$1" --root="$2" --unpriv --chroot "git -C '$MOCK_DIR' rev-parse HEAD");;
 esac
 
 # Edit the SPEC file.
-SPEC_PATH=package/dnf-plugins-core.spec
-./dnf-plugins-edit-spec.sh "$SPEC_PATH" "$GITREV" "$3"
-
-# Build the SRPM.
-SRPM_DIR=.
-SRPM_GLOB="$SRPM_DIR"/dnf-plugins-core-*.src.rpm
-rm --force "$SRPM_DIR"/$SRPM_GLOB
-mock --quiet --configdir="$1" --root="$2" --buildsrpm --spec "$SPEC_PATH" --sources "$SRC_DIR"
-mv "/var/lib/mock/$2/result"/$SRPM_GLOB "$SRPM_DIR"
+SPEC_PATH=dnf-plugins-core.spec
+mock --quiet --configdir="$1" --root="$2" --chroot "cd $MOCK_DIR; ./dnf-plugins-edit-spec.sh '$SPEC_PATH' '$GITREV' '$3'; git config user.name 'dnf-plugins-git2rpm'; git config user.email 'dnf-ci'; git add '$SPEC_PATH'; git commit --message='Set a snapshot release.'"
 
 # Build the RPMs.
-./srpm2rpm-with-deps.sh "$SRPM_DIR"/$SRPM_GLOB "$1" "$2" ${*:4}
+mock --quiet --configdir="$1" --root="$2" --chroot "yum-builddep '$MOCK_DIR/$SPEC_PATH'"
+mock --quiet --configdir="$1" --root="$2" --unpriv --chroot "cd $MOCK_DIR; tito build --rpm --test --no-cleanup"
