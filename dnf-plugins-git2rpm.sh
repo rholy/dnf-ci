@@ -26,6 +26,4 @@ git add "$SPEC_PATH"
 git commit --message="Set a snapshot release."
 
 # Build the RPMs.
-DEPS=(${*:4})
-DEPS=(${DEPS[@]//dnf-yum-*})
-./tito2rpm-with-deps.sh "" "$1" "$2" ${DEPS[@]}
+./tito2rpm-with-deps.sh "" "$1" "$2" ${*:4}
