@@ -18,23 +18,14 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-MOCK_DIR=/tmp/dnf-git2rpm
 mock --quiet --configdir="$1" --root="$2" --init
-mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOCK_DIR'"
-mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
-mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
-mock --quiet --configdir="$1" --root="$2" --install git yum-utils tito ${*:4}
 
-# Get GIT revision hash.
-git --version >>/dev/null 2>&1; GIT_EXIT=$?
-case "$GIT_EXIT" in
-	# GIT is installed.
-	0)	GITREV=$(git rev-parse HEAD);;
-	# GIT is not installed.
-	127)	echo "WARNING: git is not installed => using mock" 1>&2
-		GITREV=$(mock --quiet --configdir="$1" --root="$2" --unpriv --chroot "git -C '$MOCK_DIR' rev-parse HEAD");;
-esac
+# Install dependencies.
+if [ $# -gt 3 ]; then
+	mock --quiet --configdir="$1" --root="$2" --install ${*:4};
+fi
 
 # Build the RPMs.
-mock --quiet --configdir="$1" --root="$2" --chroot "yum-builddep '$MOCK_DIR/dnf.spec'"
-mock --quiet --configdir="$1" --root="$2" --unpriv --chroot "cd $MOCK_DIR; tito build --debug --rpm --test --no-cleanup --rpmbuild-options=\"--define='snapshot .$3.%(date +%%Y%%m%%d)git$GITREV'\""
+GITREV=$(git rev-parse HEAD)
+#tito does not accept = in mock_args (see https://bugzilla.redhat.com/show_bug.cgi?id=1205823)
+tito build --rpm --test --no-cleanup --builder=mock --arg=mock="$2" --arg="mock_config_dir=$1" --arg=mock_args="--no-clean --define 'snapshot .$3.%(date +%%Y%%m%%d)git$GITREV'"

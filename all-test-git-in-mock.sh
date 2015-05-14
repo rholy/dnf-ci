@@ -76,11 +76,12 @@ echo "Building dnf RPMs from the GIT repository in $MOCK_CFG mock..."
 #DNF_BUILD2=dnf-build2
 #DNF_BUILD3=dnf-build3
 cd dnf
+rm --force "/tmp/tito"/*dnf-*"$RPMS_SUFFIX"
 ./dnf-git2rpm.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX" > ../dnf-build.log 2>&1; DNF_EXIT=$?
 #rm --recursive --force "../$DNF_BUILD2" "../$DNF_BUILD3"
 #mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout /builddir/build/BUILD/dnf "../$DNF_BUILD2"
 #mv "../$DNF_BUILD2/py3" "../$DNF_BUILD3"
-mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout "/tmp/tito/*dnf-*$RPMS_SUFFIX" "../$RPMS_DIR"
+mv "/tmp/tito"/*dnf-*"$RPMS_SUFFIX" "../$RPMS_DIR"
 cd ..
 if [ $DNF_EXIT -eq 0 ]; then
 	echo "...build succeeded."
