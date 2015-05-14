@@ -18,11 +18,6 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-mock --quiet --configdir="$1" --root="$2" --init
-DEPS=(${*:4})
-DEPS=(${DEPS[@]//dnf-yum-*})
-mock --quiet --configdir="$1" --root="$2" --install ${DEPS[@]}
-
 # Edit the SPEC file.
 SPEC_PATH=dnf-plugins-core.spec
 GITREV=$(git rev-parse HEAD)
@@ -31,4 +26,6 @@ git add "$SPEC_PATH"
 git commit --message="Set a snapshot release."
 
 # Build the RPMs.
-tito build --rpm --test --no-cleanup --builder=mock --arg=mock="$2" --arg="mock_config_dir=$1" --arg=mock_args="--no-clean"
+DEPS=(${*:4})
+DEPS=(${DEPS[@]//dnf-yum-*})
+./tito2rpm-with-deps.sh "" "$1" "$2" ${DEPS[@]}

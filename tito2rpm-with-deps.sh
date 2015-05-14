@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
-# Build the dnf RPMs from the GIT repository.
-# Usage: ./dnf-git2rpm.sh CFG_DIR MOCK_CFG BUILD_NUMBER [DEP_PKG...]
+# Build RPMs of a tito-enabled project using given dependencies.
+# Usage: ./tito2rpm-with-deps.sh MOCK_ARGS CFG_DIR MOCK_CFG [DEP_PKG...]
 #
-# Copyright (C) 2014-2015  Red Hat, Inc.
+# Copyright (C) 2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -18,6 +18,12 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-GITREV=$(git rev-parse HEAD)
-#tito does not accept = in mock_args (see https://bugzilla.redhat.com/show_bug.cgi?id=1205823)
-./tito2rpm-with-deps.sh "--define 'snapshot .$3.%(date +%%Y%%m%%d)git$GITREV'" "$1" "$2" ${*:4}
+mock --quiet --configdir="$2" --root="$3" --init
+
+# Install dependencies.
+if [ $# -gt 3 ]; then
+	mock --quiet --configdir="$2" --root="$3" --install ${*:4};
+fi
+
+# Build RPM.
+tito build --rpm --test --no-cleanup --builder=mock --arg=mock="$3" --arg="mock_config_dir=$2" --arg=mock_args="--no-clean $1"

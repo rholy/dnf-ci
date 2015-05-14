@@ -26,4 +26,4 @@ git add "$SPEC_PATH"
 git commit --message="Set a snapshot release."
 
 # Build the RPMs.
-tito build --rpm --test --no-cleanup --builder=mock --arg=mock="$2" --arg="mock_config_dir=$1"
+./tito2rpm-with-deps.sh "" "$1" "$2" ${*:4}
