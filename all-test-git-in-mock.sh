@@ -94,10 +94,11 @@ echo "Building dnf plugins RPMs from the GIT repository in $MOCK_CFG mock..."
 #tito cleans the BUILD directory (see https://bugzilla.redhat.com/show_bug.cgi?id=1205744)
 #PLUGINS_BUILD=dnf-plugins-core-build
 cd dnf-plugins-core
+rm --force "/tmp/tito"/*dnf-plugins-core-*"$RPMS_SUFFIX"
 ./dnf-plugins-git2rpm.sh .. "$MOCK_CFG" "$2" "../$RPMS_DIR"/*"$RPMS_SUFFIX" > ../dnf-plugins-core-build.log 2>&1; PLUGINS_EXIT=$?
 #rm --recursive --force "../$PLUGINS_BUILD"
 #mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout /builddir/build/BUILD/dnf-plugins-core "../$PLUGINS_BUILD"
-mock --quiet --configdir=.. --root="$MOCK_CFG" --copyout "/tmp/tito/*dnf-plugins-core*$RPMS_SUFFIX" "../$RPMS_DIR"
+mv "/tmp/tito"/*dnf-plugins-core-*"$RPMS_SUFFIX" "../$RPMS_DIR"
 cd ..
 if [ $PLUGINS_EXIT -eq 0 ]; then
 	echo "...build succeeded."

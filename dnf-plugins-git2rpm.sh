@@ -18,28 +18,17 @@
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
 
-MOCK_DIR=/tmp/dnf-plugins-git2rpm
 mock --quiet --configdir="$1" --root="$2" --init
-mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
-mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
 DEPS=(${*:4})
 DEPS=(${DEPS[@]//dnf-yum-*})
-mock --quiet --configdir="$1" --root="$2" --install git yum-utils tito ${DEPS[@]}
-
-# Get GIT revision hash.
-git --version >>/dev/null 2>&1; GIT_EXIT=$?
-case "$GIT_EXIT" in
-	# GIT is installed.
-	0)	GITREV=$(git rev-parse HEAD);;
-	# GIT is not installed.
-	127)	echo "WARNING: git is not installed => using mock" 1>&2
-		GITREV=$(mock --quiet --configdir="$1" --root="$2" --unpriv --chroot "git -C '$MOCK_DIR' rev-parse HEAD");;
-esac
+mock --quiet --configdir="$1" --root="$2" --install ${DEPS[@]}
 
 # Edit the SPEC file.
 SPEC_PATH=dnf-plugins-core.spec
-mock --quiet --configdir="$1" --root="$2" --chroot "cd $MOCK_DIR; ./dnf-plugins-edit-spec.sh '$SPEC_PATH' '$GITREV' '$3'; git config user.name 'dnf-plugins-git2rpm'; git config user.email 'dnf-ci'; git add '$SPEC_PATH'; git commit --message='Set a snapshot release.'"
+GITREV=$(git rev-parse HEAD)
+./dnf-plugins-edit-spec.sh "$SPEC_PATH" "$GITREV" "$3"
+git add "$SPEC_PATH"
+git commit --message="Set a snapshot release."
 
 # Build the RPMs.
-mock --quiet --configdir="$1" --root="$2" --chroot "yum-builddep '$MOCK_DIR/$SPEC_PATH'"
-mock --quiet --configdir="$1" --root="$2" --unpriv --chroot "cd $MOCK_DIR; tito build --rpm --test --no-cleanup"
+tito build --rpm --test --no-cleanup --builder=mock --arg=mock="$2" --arg="mock_config_dir=$1" --arg=mock_args="--no-clean"
