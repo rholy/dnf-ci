@@ -2,7 +2,7 @@
 # Build the librepo RPMs from the GIT repository.
 # Usage: ./librepo-git2rpm.sh BUILD_NUMBER
 #
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -26,4 +26,4 @@ wget --no-verbose http://pkgs.fedoraproject.org/cgit/librepo.git/plain/librepo.s
 ./librepo-edit-spec.sh librepo.spec "$1"
 
 # Build RPM.
-utils/make_rpm.sh .
+utils/make_rpm.sh . '--without tests'
