@@ -2,7 +2,7 @@
 # Build the librepo RPMs from the GIT repository.
 # Usage: ./librepo-git2rpm-in-mock.sh CFG_DIR MOCK_CFG TAG_RELEASE [DEP_PKG...]
 #
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -23,7 +23,7 @@ mock --quiet --configdir="$1" --root="$2" --chroot "rm --recursive --force '$MOC
 mock --quiet --configdir="$1" --root="$2" --copyin . "$MOCK_DIR"
 mock --quiet --configdir="$1" --root="$2" --chroot "chown --recursive :mockbuild '$MOCK_DIR'"
 mock --quiet --configdir="$1" --root="$2" --chroot "chmod --recursive +w '$MOCK_DIR'"
-mock --quiet --configdir="$1" --root="$2" --install wget yum git check-devel cmake expat-devel gcc glib2-devel gpgme-devel libattr-devel libcurl-devel openssl-devel python-devel python3-devel pygpgme python3-pygpgme python-flask python3-flask python-nose python3-nose pyxattr python3-pyxattr doxygen python-sphinx python3-sphinx
+mock --quiet --configdir="$1" --root="$2" --install wget git check-devel cmake expat-devel gcc glib2-devel gpgme-devel libattr-devel libcurl-devel openssl-devel python-devel python3-devel pygpgme python3-pygpgme python-flask python3-flask python-nose python3-nose pyxattr python3-pyxattr doxygen python-sphinx python3-sphinx
 mock --quiet --configdir="$1" --root="$2" --chroot "ln --symbolic --force /builddir/build \"\$HOME/rpmbuild\""
 
 # Install dependencies.
