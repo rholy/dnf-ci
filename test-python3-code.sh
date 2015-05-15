@@ -2,7 +2,7 @@
 # Test python 3 code.
 # Usage: ./test-python3-code.sh
 #
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -17,6 +17,11 @@
 # source code or documentation are not subject to the GNU General Public
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
+
+mkdir build
+pushd build
+cmake ..
+popd
 
 python3 -m pep8 . > pep8.log 2>&1; PEP_EXIT=$?
 python3-pyflakes . > pyflakes.log 2>&1; PYFLAKES_EXIT=$?

@@ -26,4 +26,4 @@ if [ $# -gt 3 ]; then
 fi
 
 # Build RPM.
-tito build --rpm --test --no-cleanup --builder=mock --arg=mock="$3" --arg="mock_config_dir=$2" --arg=mock_args="--no-clean $1"
+tito build --rpm --test --builder=mock --arg=mock="$3" --arg="mock_config_dir=$2" --arg=mock_args="--no-clean $1"

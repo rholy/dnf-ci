@@ -2,7 +2,7 @@
 # Run python tests.
 # Usage: ./test-python-project.sh PYTHON_VERSION PYTHONPATH
 #
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This copyrighted material is made available to anyone wishing to use,
 # modify, copy, or redistribute it subject to the terms and conditions of
@@ -17,6 +17,11 @@
 # source code or documentation are not subject to the GNU General Public
 # License and may only be used or replicated with the express permission of
 # Red Hat, Inc.
+
+mkdir build
+pushd build
+cmake ..
+popd
 
 export PYTHONPATH="$2:$PYTHONPATH"
 
