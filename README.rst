@@ -1,4 +1,1 @@
-dnf-ci
-======
-
-DNF continuous integration support
+Moved to https://github.com/rpm-software-management/ci-dnf-stack
